@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PQA Tracker — Alpha Drive AI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --surface2:#1c2230;
+  --border:#2a3444;
+  --accent:#3b82f6;
+  --accent2:#10b981;
+  --warn:#f59e0b;
+  --danger:#ef4444;
+  --text:#e6edf3;
+  --muted:#8b949e;
+  --serif:'DM Serif Display',serif;
+  --sans:'DM Sans',sans-serif;
+}
+html,body,#root{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
+button{cursor:pointer;font-family:var(--sans)}
+input,select,textarea{font-family:var(--sans)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.fade-in{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.slide-in{animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useCallback,useRef,useMemo}=React;
+
+// ─── DATA LAYER (localStorage) ───────────────────────────────────────────────
+const DB={
+  get:(k,d=[])=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+
+// ─── SEED DATA ────────────────────────────────────────────────────────────────
+const USERS=[
+  {id:'ashly',name:'Ashly K',role:'evaluator',password:'ashly2024'},
+  {id:'jennifer',name:'Jennifer G',role:'evaluator',password:'jennifer2024'},
+  {id:'tali',name:'Tali B',role:'evaluator',password:'tali2024'},
+  {id:'bethany',name:'Bethany F',role:'manager',password:'bethany2024'},
+  {id:'nick',name:'Nick L',role:'manager',password:'nick2024'},
+];
+
+const SCHEDULERS=['Xtime','DealerSocket','Reynolds & Reynolds','CDK','Tekion','Momentum','Other'];
+const MAKES=['Acura','Audi','BMW','Buick','Cadillac','Chevrolet','Chrysler','Dodge','Ferrari','Ford','Genesis','GMC','Honda','Hyundai','Infiniti','Jeep','Kia','Lamborghini','Land Rover','Lexus','Lincoln','Maserati','Mazda','Mercedes-Benz','MINI','Mitsubishi','Nissan','Porsche','RAM','Subaru','Tesla','Toyota','Volkswagen','Volvo','Other'];
+
+const EVAL_CRITERIA=[
+  {id:'greeting',label:'Greeting & Introduction'},
+  {id:'tone',label:'Tone — Professional & Friendly'},
+  {id:'listening',label:'Active Listening & Comprehension'},
+  {id:'scheduling',label:'Appointment Offer / Scheduling Accuracy'},
+  {id:'vehicle',label:'Correct Vehicle / Service Info Captured'},
+  {id:'confirmation',label:'Confirmation & Recap to Customer'},
+  {id:'ai_accuracy',label:'AI Accuracy — Did AI Match Correct Intent?'},
+  {id:'closing',label:'Closing — Polite, Professional Sign-off'},
+  {id:'compliance',label:'Compliance — No Policy Violations'},
+  {id:'overall',label:'Overall Call Quality'},
+];
+
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function today(){return new Date().toISOString().slice(0,10)}
+function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10)}
+function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function isOverdue(d){return d&&d<today()}
+function daysUntil(d){if(!d)return null;const diff=Math.ceil((new Date(d+'T12:00:00')-new Date())/(1000*60*60*24));return diff}
+
+// ─── ICONS ────────────────────────────────────────────────────────────────────
+const Icon={
+  dash:()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
+  clients:()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+  eval:()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
+  history:()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  reports:()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  users:()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  star:(filled)=><svg width="14" height="14" viewBox="0 0 24 24" fill={filled?"#f59e0b":"none"} stroke="#f59e0b" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  plus:()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  check:()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>,
+  x:()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  mail:()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+  logout:()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+  alert:()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+  edit:()=><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+  trash:()=><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
+  eye:()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+};
+
+// ─── SHARED COMPONENTS ────────────────────────────────────────────────────────
+const Btn=({children,variant='primary',size='md',onClick,disabled,style={}})=>{
+  const base={display:'inline-flex',alignItems:'center',gap:6,border:'none',borderRadius:8,fontFamily:'var(--sans)',fontWeight:500,cursor:disabled?'not-allowed':'pointer',opacity:disabled?.5:1,transition:'all .15s',...style};
+  const sizes={sm:{padding:'5px 12px',fontSize:12},md:{padding:'8px 16px',fontSize:13},lg:{padding:'11px 22px',fontSize:14}};
+  const variants={
+    primary:{background:'var(--accent)',color:'#fff'},
+    success:{background:'var(--accent2)',color:'#fff'},
+    danger:{background:'var(--danger)',color:'#fff'},
+    ghost:{background:'transparent',color:'var(--muted)',border:'1px solid var(--border)'},
+    warn:{background:'var(--warn)',color:'#000'},
+  };
+  return<button style={{...base,...sizes[size],...variants[variant]}} onClick={onClick} disabled={disabled}>{children}</button>;
+};
+
+const Badge=({children,color='blue'})=>{
+  const colors={blue:{bg:'rgba(59,130,246,.15)',c:'#60a5fa'},green:{bg:'rgba(16,185,129,.15)',c:'#34d399'},amber:{bg:'rgba(245,158,11,.15)',c:'#fbbf24'},red:{bg:'rgba(239,68,68,.15)',c:'#f87171'},purple:{bg:'rgba(168,85,247,.15)',c:'#c084fc'},gray:{bg:'rgba(139,148,158,.15)',c:'#8b949e'}};
+  const s=colors[color]||colors.gray;
+  return<span style={{background:s.bg,color:s.c,padding:'2px 8px',borderRadius:20,fontSize:11,fontWeight:600,letterSpacing:.4}}>{children}</span>;
+};
+
+const Card=({children,style={}})=>(
+  <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:12,padding:20,...style}}>{children}</div>
+);
+
+const Input=({label,value,onChange,type='text',placeholder,required,style={}})=>(
+  <div style={{display:'flex',flexDirection:'column',gap:5,...style}}>
+    {label&&<label style={{fontSize:12,fontWeight:600,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.6}}>{label}{required&&<span style={{color:'var(--danger)'}}> *</span>}</label>}
+    <input type={type} value={value||''} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
+      style={{background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:8,padding:'9px 12px',color:'var(--text)',fontSize:13,outline:'none'}}/>
+  </div>
+);
+
+const Select=({label,value,onChange,options,placeholder,required,style={}})=>(
+  <div style={{display:'flex',flexDirection:'column',gap:5,...style}}>
+    {label&&<label style={{fontSize:12,fontWeight:600,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.6}}>{label}{required&&<span style={{color:'var(--danger)'}}> *</span>}</label>}
+    <select value={value||''} onChange={e=>onChange(e.target.value)}
+      style={{background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:8,padding:'9px 12px',color:value?'var(--text)':'var(--muted)',fontSize:13,outline:'none'}}>
+      {placeholder&&<option value="">{placeholder}</option>}
+      {options.map(o=>typeof o==='string'?<option key={o} value={o}>{o}</option>:<option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  </div>
+);
+
+const Textarea=({label,value,onChange,placeholder,rows=3,style={}})=>(
+  <div style={{display:'flex',flexDirection:'column',gap:5,...style}}>
+    {label&&<label style={{fontSize:12,fontWeight:600,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.6}}>{label}</label>}
+    <textarea value={value||''} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={rows}
+      style={{background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:8,padding:'9px 12px',color:'var(--text)',fontSize:13,outline:'none',resize:'vertical',fontFamily:'var(--sans)'}}/>
+  </div>
+);
+
+const StarRating=({value,onChange,max=5})=>(
+  <div style={{display:'flex',gap:3}}>
+    {Array.from({length:max},(_,i)=>(
+      <span key={i} style={{cursor:'pointer'}} onClick={()=>onChange(i+1)}>{Icon.star(i<value)}</span>
+    ))}
+  </div>
+);
+
+const Modal=({title,onClose,children,width=540})=>(
+  <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.7)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:999,padding:20}} onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
+    <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,width:'100%',maxWidth:width,maxHeight:'90vh',overflow:'auto'}} className="fade-in">
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 22px',borderBottom:'1px solid var(--border)'}}>
+        <h3 style={{fontFamily:'var(--serif)',fontSize:18,fontWeight:400}}>{title}</h3>
+        <button onClick={onClose} style={{background:'none',border:'none',color:'var(--muted)',fontSize:20,cursor:'pointer',lineHeight:1}}>×</button>
+      </div>
+      <div style={{padding:22}}>{children}</div>
+    </div>
+  </div>
+);
+
+// ─── LOGIN PAGE ───────────────────────────────────────────────────────────────
+const LoginPage=({onLogin})=>{
+  const [username,setUsername]=useState('');
+  const [password,setPassword]=useState('');
+  const [error,setError]=useState('');
+  const submit=()=>{
+    const u=USERS.find(u=>u.name.toLowerCase().replace(/\s/g,'')===username.toLowerCase().replace(/\s/g,'')||u.id===username.toLowerCase());
+    if(!u||u.password!==password){setError('Invalid credentials. Try again.');return;}
+    setError('');onLogin(u);
+  };
+  return(
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg)',padding:24}}>
+      <div style={{width:'100%',maxWidth:400}} className="fade-in">
+        <div style={{textAlign:'center',marginBottom:40}}>
+          <div style={{width:56,height:56,borderRadius:14,background:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:24}}>⚡</div>
+          <h1 style={{fontFamily:'var(--serif)',fontSize:28,fontWeight:400,marginBottom:6}}>PQA Tracker</h1>
+          <p style={{color:'var(--muted)',fontSize:13}}>Alpha Drive AI · Proactive Quality Assurance</p>
+        </div>
+        <Card>
+          <div style={{display:'flex',flexDirection:'column',gap:16}}>
+            <Input label="Name" value={username} onChange={setUsername} placeholder="e.g. Ashly K or Nick L"/>
+            <Input label="Password" type="password" value={password} onChange={setPassword} placeholder="Enter password"/>
+            {error&&<div style={{background:'rgba(239,68,68,.1)',border:'1px solid rgba(239,68,68,.3)',borderRadius:8,padding:'9px 12px',color:'#f87171',fontSize:13}}>{error}</div>}
+            <Btn size="lg" onClick={submit} style={{width:'100%',justifyContent:'center',marginTop:4}}>Sign In</Btn>
+          </div>
+        </Card>
+        <p style={{textAlign:'center',color:'var(--muted)',fontSize:11,marginTop:20,lineHeight:1.6}}>
+          Team: Ashly K · Jennifer G · Tali B<br/>Managers: Bethany F · Nick L
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// ─── SIDEBAR ──────────────────────────────────────────────────────────────────
+const Sidebar=({user,page,setPage,onLogout})=>{
+  const nav=[
+    {id:'dashboard',label:'Dashboard',icon:Icon.dash},
+    {id:'clients',label:'Clients',icon:Icon.clients},
+    {id:'evaluations',label:'Evaluations',icon:Icon.eval},
+    {id:'history',label:'History',icon:Icon.history},
+    {id:'reports',label:'Reports',icon:Icon.reports},
+    ...(user.role==='manager'?[{id:'users',label:'Team',icon:Icon.users}]:[]),
+  ];
+  return(
+    <div style={{width:220,minHeight:'100vh',background:'var(--surface)',borderRight:'1px solid var(--border)',display:'flex',flexDirection:'column',position:'fixed',left:0,top:0,zIndex:100}}>
+      <div style={{padding:'22px 18px 16px',borderBottom:'1px solid var(--border)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <div style={{width:34,height:34,borderRadius:9,background:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>⚡</div>
+          <div>
+            <div style={{fontSize:13,fontWeight:600,fontFamily:'var(--serif)'}}>PQA Tracker</div>
+            <div style={{fontSize:11,color:'var(--muted)'}}>Alpha Drive AI</div>
+          </div>
+        </div>
+      </div>
+      <nav style={{flex:1,padding:'12px 10px'}}>
+        {nav.map(n=>(
+          <button key={n.id} onClick={()=>setPage(n.id)}
+            style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'9px 10px',borderRadius:8,border:'none',background:page===n.id?'rgba(59,130,246,.15)':'transparent',color:page===n.id?'var(--accent)':'var(--muted)',fontSize:13,fontWeight:page===n.id?600:400,textAlign:'left',cursor:'pointer',transition:'all .15s',marginBottom:2}}>
+            <n.icon/>{n.label}
+          </button>
+        ))}
+      </nav>
+      <div style={{padding:'16px 12px',borderTop:'1px solid var(--border)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+          <div style={{width:32,height:32,borderRadius:8,background:user.role==='manager'?'rgba(168,85,247,.2)':'rgba(59,130,246,.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:user.role==='manager'?'#c084fc':'var(--accent)'}}>
+            {user.name.charAt(0)}
+          </div>
+          <div>
+            <div style={{fontSize:12,fontWeight:600}}>{user.name}</div>
+            <Badge color={user.role==='manager'?'purple':'blue'}>{user.role}</Badge>
+          </div>
+        </div>
+        <button onClick={onLogout} style={{display:'flex',alignItems:'center',gap:8,width:'100%',padding:'7px 10px',borderRadius:7,border:'1px solid var(--border)',background:'transparent',color:'var(--muted)',fontSize:12,cursor:'pointer'}}>
+          <Icon.logout/>Sign Out
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+const Dashboard=({user,clients,evaluations,setPage})=>{
+  const myClients=user.role==='manager'?clients:clients.filter(c=>c.assignedTo===user.id);
+  const myEvals=evaluations.filter(e=>user.role==='manager'||e.evaluatorId===user.id);
+  const overdueClients=myClients.filter(c=>isOverdue(c.nextDueDate)&&c.status==='active');
+  const dueSoon=myClients.filter(c=>{const d=daysUntil(c.nextDueDate);return d!==null&&d>=0&&d<=5&&c.status==='active'});
+  const completedThisMonth=myEvals.filter(e=>{const d=new Date(e.completedAt||'');const n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear()&&e.status==='complete'}).length;
+  const avgScore=myEvals.filter(e=>e.status==='complete'&&e.overallScore).reduce((a,e,i,arr)=>i===arr.length-1?(a+e.overallScore)/arr.length:a+e.overallScore,0);
+
+  const stats=[
+    {label:'Active Clients',value:myClients.filter(c=>c.status==='active').length,color:'var(--accent)'},
+    {label:'Completed This Month',value:completedThisMonth,color:'var(--accent2)'},
+    {label:'Overdue',value:overdueClients.length,color:'var(--danger)'},
+    {label:'Avg Score',value:myEvals.filter(e=>e.status==='complete'&&e.overallScore).length>0?Math.round(avgScore*10)/10+'%':'—',color:'var(--warn)'},
+  ];
+
+  return(
+    <div className="fade-in">
+      <div style={{marginBottom:28}}>
+        <h2 style={{fontFamily:'var(--serif)',fontSize:26,fontWeight:400,marginBottom:4}}>Good {new Date().getHours()<12?'morning':'afternoon'}, {user.name.split(' ')[0]}</h2>
+        <p style={{color:'var(--muted)',fontSize:13}}>{new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:28}}>
+        {stats.map(s=>(
+          <Card key={s.label} style={{textAlign:'center'}}>
+            <div style={{fontSize:32,fontFamily:'var(--serif)',color:s.color,marginBottom:4}}>{s.value}</div>
+            <div style={{fontSize:11,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.6}}>{s.label}</div>
+          </Card>
+        ))}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18}}>
+        <Card>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+            <h3 style={{fontFamily:'var(--serif)',fontSize:16,fontWeight:400}}>🔴 Overdue Evaluations</h3>
+            <Badge color="red">{overdueClients.length}</Badge>
+          </div>
+          {overdueClients.length===0?<p style={{color:'var(--muted)',fontSize:13}}>All caught up! ✅</p>:
+            overdueClients.slice(0,5).map(c=>(
+              <div key={c.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid var(--border)'}}>
+                <div>
+                  <div style={{fontSize:13,fontWeight:500}}>{c.storeName}</div>
+                  <div style={{fontSize:11,color:'var(--danger)'}}>Due {fmtDate(c.nextDueDate)}</div>
+                </div>
+                <Btn size="sm" onClick={()=>setPage('evaluations')}>Evaluate</Btn>
+              </div>
+            ))
+          }
+        </Card>
+        <Card>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+            <h3 style={{fontFamily:'var(--serif)',fontSize:16,fontWeight:400}}>⚠️ Due Soon</h3>
+            <Badge color="amber">{dueSoon.length}</Badge>
+          </div>
+          {dueSoon.length===0?<p style={{color:'var(--muted)',fontSize:13}}>Nothing urgent coming up.</p>:
+            dueSoon.slice(0,5).map(c=>(
+              <div key={c.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid var(--border)'}}>
+                <div>
+                  <div style={{fontSize:13,fontWeight:500}}>{c.storeName}</div>
+                  <div style={{fontSize:11,color:'var(--warn)'}}>Due in {daysUntil(c.nextDueDate)} day{daysUntil(c.nextDueDate)!==1?'s':''}</div>
+                </div>
+                <Btn size="sm" variant="ghost" onClick={()=>setPage('evaluations')}>View</Btn>
+              </div>
+            ))
+          }
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+// ─── CLIENT FORM ──────────────────────────────────────────────────────────────
+const ClientForm=({initial={},onSave,onClose,user,users})=>{
+  const [f,setF]=useState({storeName:'',location:'',make:'',scheduler:'',contactName:'',contactEmail:'',assignedTo:user.role==='evaluator'?user.id:'',csm:'',status:'active',nextDueDate:addDays(today(),14),...initial});
+  const set=(k,v)=>setF(p=>({...p,[k]:v}));
+  const evaluators=users.filter(u=>u.role==='evaluator');
+  const valid=f.storeName&&f.make&&f.scheduler&&f.contactEmail&&f.assignedTo;
+  return(
+    <div style={{display:'flex',flexDirection:'column',gap:14}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+        <Input label="Store Name" value={f.storeName} onChange={v=>set('storeName',v)} required/>
+        <Input label="Location (City, State)" value={f.location} onChange={v=>set('location',v)}/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+        <Select label="Make / Franchise" value={f.make} onChange={v=>set('make',v)} options={MAKES} placeholder="Select make..." required/>
+        <Select label="Service Scheduler" value={f.scheduler} onChange={v=>set('scheduler',v)} options={SCHEDULERS} placeholder="Select scheduler..." required/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+        <Input label="Primary Contact Name" value={f.contactName} onChange={v=>set('contactName',v)}/>
+        <Input label="Contact Email" type="email" value={f.contactEmail} onChange={v=>set('contactEmail',v)} required/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+        <Select label="Assigned Evaluator" value={f.assignedTo} onChange={v=>set('assignedTo',v)}
+          options={evaluators.map(u=>({value:u.id,label:u.name}))} placeholder="Assign to..." required
+          style={user.role==='evaluator'?{pointerEvents:'none',opacity:.6}:{}}/>
+        <Input label="CSM / Account Manager" value={f.csm} onChange={v=>set('csm',v)}/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+        <Input label="Next Due Date" type="date" value={f.nextDueDate} onChange={v=>set('nextDueDate',v)}/>
+        <Select label="Status" value={f.status} onChange={v=>set('status',v)} options={['active','inactive','on-hold']}/>
+      </div>
+      <div style={{display:'flex',gap:10,justifyContent:'flex-end',marginTop:6}}>
+        <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+        <Btn onClick={()=>{if(valid)onSave(f)}} disabled={!valid} variant="success">{Icon.check()} Save Client</Btn>
+      </div>
+    </div>
+  );
+};
+
+// ─── CLIENTS PAGE ─────────────────────────────────────────────────────────────
+const ClientsPage=({user,clients,setClients,evaluations,setPage,setPendingClient})=>{
+  const [modal,setModal]=useState(null);
+  const [search,setSearch]=useState('');
+  const [filterMake,setFilterMake]=useState('');
+  const [filterScheduler,setFilterScheduler]=useState('');
+  const users=USERS;
+  const myClients=user.role==='manager'?clients:clients.filter(c=>c.assignedTo===user.id);
+  const filtered=myClients.filter(c=>{
+    const s=search.toLowerCase();
+    return(!s||(c.storeName+c.location+c.contactName).toLowerCase().includes(s))
+      &&(!filterMake||c.make===filterMake)
+      &&(!filterScheduler||c.scheduler===filterScheduler);
+  });
+  const saveClient=(f)=>{
+    if(modal.id){setClients(prev=>prev.map(c=>c.id===modal.id?{...c,...f}:c));}
+    else{setClients(prev=>[...prev,{...f,id:genId(),createdAt:today()}]);}
+    setModal(null);
+  };
+  const deleteClient=(id)=>{if(confirm('Delete this client?'))setClients(prev=>prev.filter(c=>c.id!==id));}
+  const startEval=(client)=>{setPendingClient(client);setPage('evaluations');}
+
+  return(
+    <div className="fade-in">
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:22}}>
+        <div>
+          <h2 style={{fontFamily:'var(--serif)',fontSize:24,fontWeight:400}}>Clients</h2>
+          <p style={{color:'var(--muted)',fontSize:13,marginTop:2}}>{filtered.length} store{filtered.length!==1?'s':''} shown</p>
+        </div>
+        <Btn onClick={()=>setModal({})} variant="success"><Icon.plus/>Add Client</Btn>
+      </div>
+      <div style={{display:'flex',gap:10,marginBottom:18,flexWrap:'wrap'}}>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search stores..."
+          style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:8,padding:'8px 12px',color:'var(--text)',fontSize:13,outline:'none',flex:1,minWidth:180}}/>
+        <select value={filterMake} onChange={e=>setFilterMake(e.target.value)}
+          style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:8,padding:'8px 12px',color:'var(--text)',fontSize:13,outline:'none'}}>
+          <option value="">All Makes</option>{MAKES.map(m=><option key={m}>{m}</option>)}
+        </select>
+        <select value={filterScheduler} onChange={e=>setFilterScheduler(e.target.value)}
+          style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:8,padding:'8px 12px',color:'var(--text)',fontSize:13,outline:'none'}}>
+          <option value="">All Schedulers</option>{SCHEDULERS.map(s=><option key={s}>{s}</option>)}
+        </select>
+      </div>
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {filtered.length===0&&<Card style={{textAlign:'center',padding:40}}><p style={{color:'var(--muted)'}}>No clients found. Add one to get started.</p></Card>}
+        {filtered.map(c=>{
+          const due=daysUntil(c.nextDueDate);
+          const overdue=isOverdue(c.nextDueDate)&&c.status==='active';
+          const soon=due!==null&&due>=0&&due<=5&&c.status==='active';
+          const lastEval=evaluations.filter(e=>e.clientId===c.id&&e.status==='complete').sort((a,b)=>b.completedAt>a.completedAt?1:-1)[0];
+          const assignee=USERS.find(u=>u.id===c.assignedTo);
+          return(
+            <Card key={c.id} style={{borderLeft:`3px solid ${overdue?'var(--danger)':soon?'var(--warn)':'var(--border)'}`}}>
+              <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12}}>
+                <div style={{flex:1}}>
+                  <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6,flexWrap:'wrap'}}>
+                    <span style={{fontSize:15,fontWeight:600}}>{c.storeName}</span>
+                    {c.location&&<span style={{fontSize:12,color:'var(--muted)'}}>📍 {c.location}</span>}
+                    <Badge color={c.status==='active'?'green':c.status==='on-hold'?'amber':'gray'}>{c.status}</Badge>
+                    {overdue&&<Badge color="red">⚠ Overdue</Badge>}
+                    {soon&&!overdue&&<Badge color="amber">Due Soon</Badge>}
+                  </div>
+                  <div style={{display:'flex',gap:20,flexWrap:'wrap'}}>
+                    <span style={{fontSize:12,color:'var(--muted)'}}>🚗 {c.make}</span>
+                    <span style={{fontSize:12,color:'var(--muted)'}}>🖥 {c.scheduler}</span>
+                    <span style={{fontSize:12,color:'var(--muted)'}}>📧 {c.contactEmail}</span>
+                    {assignee&&<span style={{fontSize:12,color:'var(--muted)'}}>👤 {assignee.name}</span>}
+                    <span style={{fontSize:12,color:overdue?'var(--danger)':soon?'var(--warn)':'var(--muted)'}}>
+                      📅 Due: {fmtDate(c.nextDueDate)}
+                    </span>
+                    {lastEval&&<span style={{fontSize:12,color:'var(--accent2)'}}>✓ Last eval: {fmtDate(lastEval.completedAt)} ({lastEval.overallScore}%)</span>}
+                  </div>
+                </div>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <Btn size="sm" onClick={()=>startEval(c)}>Start Eval</Btn>
+                  {user.role==='manager'&&<>
+                    <Btn size="sm" variant="ghost" onClick={()=>setModal(c)}><Icon.edit/></Btn>
+                    <Btn size="sm" variant="danger" onClick={()=>deleteClient(c.id)}><Icon.trash/></Btn>
+                  </>}
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+      {modal&&(
+        <Modal title={modal.id?'Edit Client':'Add New Client'} onClose={()=>setModal(null)} width={600}>
+          <ClientForm initial={modal} onSave={saveClient} onClose={()=>setModal(null)} user={user} users={USERS}/>
+        </Modal>
+      )}
+    </div>
+  );
+};
+
+// ─── EVALUATION FORM ──────────────────────────────────────────────────────────
+const EvalForm=({client,user,onSave,onCancel,clients,existing=null})=>{
+  const blankAppt=()=>({id:genId(),customerId:'',scheduledDate:'',scheduledTime:'',serviceType:'',aiSummary:'',schedulerData:'',accurate:null,notes:'',scores:{},criteriaNotes:{}});
+  const [step,setStep]=useState(0);// 0=info,1=appointments,2=scoring,3=summary
+  const [appointments,setAppointments]=useState(existing?.appointments||Array.from({length:10},blankAppt));
+  const [activeAppt,setActiveAppt]=useState(0);
+  const [summary,setSummary]=useState({strengths:'',improvements:'',actions:'',followUp:'none',result:'',evaluatorNotes:'',clientName:client?.contactName||'',clientEmail:client?.contactEmail||''});
+
+  const updateAppt=(i,k,v)=>setAppointments(prev=>{const a=[...prev];a[i]={...a[i],[k]:v};return a;});
+  const updateScore=(apptIdx,criterionId,val)=>setAppointments(prev=>{const a=[...prev];a[apptIdx]={...a[apptIdx],scores:{...a[apptIdx].scores,[criterionId]:val}};return a;});
+  const updateCritNotes=(apptIdx,criterionId,val)=>setAppointments(prev=>{const a=[...prev];a[apptIdx]={...a[apptIdx],criteriaNotes:{...a[apptIdx].criteriaNotes,[criterionId]:val}};return a;});
+
+  const accurateCount=appointments.filter(a=>a.accurate===true).length;
+  const accuracyPct=Math.round((accurateCount/10)*100);
+  const avgApptScore=(appt)=>{const vals=Object.values(appt.scores||{}).filter(Boolean);return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*20):null;};
+  const overallCallScore=Math.round(appointments.reduce((sum,a)=>{const s=avgApptScore(a);return s?sum+s:sum},0)/appointments.filter(a=>avgApptScore(a)!==null).length)||0;
+
+  const steps=['Client Info','Appointments','Scoring','Summary & Submit'];
+  const curAppt=appointments[activeAppt];
+
+  const handleSave=(status)=>{
+    const score=Math.round((accuracyPct+overallCallScore)/2);
+    onSave({
+      id:existing?.id||genId(),clientId:client.id,evaluatorId:user.id,
+      evaluatorName:user.name,clientName:client.storeName,make:client.make,
+      scheduler:client.scheduler,appointments,summary,overallScore:score,
+      accuracyScore:accuracyPct,callScore:overallCallScore,
+      status,completedAt:status==='complete'?today():null,createdAt:existing?.createdAt||today()
+    });
+  };
+
+  return(
+    <div className="fade-in">
+      {/* Step indicator */}
+      <div style={{display:'flex',gap:0,marginBottom:28,position:'relative'}}>
+        {steps.map((s,i)=>(
+          <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',cursor:'pointer'}} onClick={()=>setStep(i)}>
+            <div style={{width:28,height:28,borderRadius:'50%',background:i===step?'var(--accent)':i<step?'var(--accent2)':'var(--surface2)',border:`2px solid ${i===step?'var(--accent)':i<step?'var(--accent2)':'var(--border)'}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,marginBottom:6,transition:'all .2s'}}>
+              {i<step?'✓':i+1}
+            </div>
+            <div style={{fontSize:11,color:i===step?'var(--text)':'var(--muted)',fontWeight:i===step?600:400,textAlign:'center'}}>{s}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Step 0: Client Info */}
+      {step===0&&(
+        <div className="slide-in">
+          <Card style={{marginBottom:16}}>
+            <h3 style={{fontFamily:'var(--serif)',fontSize:16,marginBottom:16}}>Store & Evaluation Info</h3>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+              <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:4}}>STORE NAME</label><div style={{fontSize:14,fontWeight:600}}>{client.storeName}</div></div>
+              <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:4}}>MAKE</label><div style={{fontSize:14}}>{client.make}</div></div>
+              <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:4}}>SCHEDULER</label><div style={{fontSize:14}}>{client.scheduler}</div></div>
+              <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:4}}>EVALUATOR</label><div style={{fontSize:14}}>{user.name}</div></div>
+              <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:4}}>EVAL DATE</label><div style={{fontSize:14}}>{fmtDate(today())}</div></div>
+            </div>
+          </Card>
+          <Card>
+            <h3 style={{fontFamily:'var(--serif)',fontSize:16,marginBottom:16}}>Delivery Info</h3>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+              <Input label="Client Contact Name" value={summary.clientName} onChange={v=>setSummary(p=>({...p,clientName:v}))}/>
+              <Input label="Client Email" type="email" value={summary.clientEmail} onChange={v=>setSummary(p=>({...p,clientEmail:v}))}/>
+            </div>
+          </Card>
+          <div style={{display:'flex',justifyContent:'flex-end',marginTop:16}}>
+            <Btn onClick={()=>setStep(1)}>Next: Appointments →</Btn>
+          </div>
+        </div>
+      )}
+
+      {/* Step 1: Appointments */}
+      {step===1&&(
+        <div className="slide-in">
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
+            {appointments.map((a,i)=>(
+              <button key={i} onClick={()=>setActiveAppt(i)}
+                style={{width:36,height:36,borderRadius:8,border:`2px solid ${i===activeAppt?'var(--accent)':a.accurate===true?'var(--accent2)':a.accurate===false?'var(--danger)':'var(--border)'}`,background:i===activeAppt?'rgba(59,130,246,.15)':'transparent',color:i===activeAppt?'var(--accent)':'var(--text)',fontSize:13,fontWeight:600,cursor:'pointer'}}>
+                {i+1}
+              </button>
+            ))}
+          </div>
+          <Card>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+              <h3 style={{fontFamily:'var(--serif)',fontSize:16}}>Appointment #{activeAppt+1}</h3>
+              <div style={{display:'flex',gap:10}}>
+                <button onClick={()=>updateAppt(activeAppt,'accurate',true)}
+                  style={{padding:'6px 14px',borderRadius:7,border:`2px solid ${curAppt.accurate===true?'var(--accent2)':'var(--border)'}`,background:curAppt.accurate===true?'rgba(16,185,129,.15)':'transparent',color:curAppt.accurate===true?'var(--accent2)':'var(--muted)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                  ✅ Accurate
+                </button>
+                <button onClick={()=>updateAppt(activeAppt,'accurate',false)}
+                  style={{padding:'6px 14px',borderRadius:7,border:`2px solid ${curAppt.accurate===false?'var(--danger)':'var(--border)'}`,background:curAppt.accurate===false?'rgba(239,68,68,.15)':'transparent',color:curAppt.accurate===false?'var(--danger)':'var(--muted)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                  ❌ Inaccurate
+                </button>
+              </div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:14}}>
+              <Input label="Customer / Appt ID" value={curAppt.customerId} onChange={v=>updateAppt(activeAppt,'customerId',v)} placeholder="Customer name or ID"/>
+              <Input label="Scheduled Date" type="date" value={curAppt.scheduledDate} onChange={v=>updateAppt(activeAppt,'scheduledDate',v)}/>
+              <Input label="Scheduled Time" type="time" value={curAppt.scheduledTime} onChange={v=>updateAppt(activeAppt,'scheduledTime',v)}/>
+            </div>
+            <Input label="Service Type / RO #" value={curAppt.serviceType} onChange={v=>updateAppt(activeAppt,'serviceType',v)} placeholder="e.g. Oil Change, Tire Rotation, RO #12345" style={{marginBottom:12}}/>
+            <Textarea label="AI Summary (paste from AI)" value={curAppt.aiSummary} onChange={v=>updateAppt(activeAppt,'aiSummary',v)} placeholder="Copy and paste the AI-generated summary here..." rows={3} style={{marginBottom:12}}/>
+            <Textarea label="Appointment from Service Scheduler (paste to prove accuracy)" value={curAppt.schedulerData} onChange={v=>updateAppt(activeAppt,'schedulerData',v)} placeholder="Copy and paste the appointment details from the service scheduler..." rows={3} style={{marginBottom:12}}/>
+            <Textarea label="Issue / Notes" value={curAppt.notes} onChange={v=>updateAppt(activeAppt,'notes',v)} placeholder="Any discrepancies or observations..." rows={2}/>
+          </Card>
+          <div style={{display:'flex',gap:8,justifyContent:'space-between',marginTop:12}}>
+            <div style={{display:'flex',gap:8}}>
+              {activeAppt>0&&<Btn variant="ghost" onClick={()=>setActiveAppt(p=>p-1)}>← Prev</Btn>}
+              {activeAppt<9&&<Btn variant="ghost" onClick={()=>setActiveAppt(p=>p+1)}>Next →</Btn>}
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <Btn variant="ghost" onClick={()=>setStep(0)}>← Back</Btn>
+              <Btn onClick={()=>setStep(2)}>Next: Scoring →</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Scoring */}
+      {step===2&&(
+        <div className="slide-in">
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
+            {appointments.map((a,i)=>(
+              <button key={i} onClick={()=>setActiveAppt(i)}
+                style={{width:36,height:36,borderRadius:8,border:`2px solid ${i===activeAppt?'var(--accent)':avgApptScore(a)!==null?'var(--accent2)':'var(--border)'}`,background:i===activeAppt?'rgba(59,130,246,.15)':'transparent',color:i===activeAppt?'var(--accent)':'var(--text)',fontSize:13,fontWeight:600,cursor:'pointer'}}>
+                {i+1}
+              </button>
+            ))}
+          </div>
+          <Card>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:18}}>
+              <h3 style={{fontFamily:'var(--serif)',fontSize:16}}>Appointment #{activeAppt+1} — Quality Scoring</h3>
+              <div style={{fontSize:13,color:'var(--muted)'}}>
+                {curAppt.customerId&&<span style={{marginRight:8}}>👤 {curAppt.customerId}</span>}
+                Score: <strong style={{color:'var(--accent)'}}>{avgApptScore(curAppt)!==null?avgApptScore(curAppt)+'%':'—'}</strong>
+              </div>
+            </div>
+            {EVAL_CRITERIA.map(c=>(
+              <div key={c.id} style={{borderBottom:'1px solid var(--border)',paddingBottom:12,marginBottom:12}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
+                  <span style={{fontSize:13,fontWeight:500}}>{c.label}</span>
+                  <StarRating value={curAppt.scores[c.id]||0} onChange={v=>updateScore(activeAppt,c.id,v)}/>
+                </div>
+                <input value={curAppt.criteriaNotes[c.id]||''} onChange={e=>updateCritNotes(activeAppt,c.id,e.target.value)}
+                  placeholder="Notes (optional)"
+                  style={{width:'100%',background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:6,padding:'6px 10px',color:'var(--text)',fontSize:12,outline:'none'}}/>
+              </div>
+            ))}
+          </Card>
+          <Card style={{marginTop:12}}>
+            <div style={{display:'flex',gap:24,justifyContent:'center'}}>
+              <div style={{textAlign:'center'}}>
+                <div style={{fontSize:28,fontFamily:'var(--serif)',color:accuracyPct>=95?'var(--accent2)':'var(--danger)'}}>{accuracyPct}%</div>
+                <div style={{fontSize:11,color:'var(--muted)'}}>ACCURACY ({accurateCount}/10)</div>
+              </div>
+              <div style={{textAlign:'center'}}>
+                <div style={{fontSize:28,fontFamily:'var(--serif)',color:overallCallScore>=90?'var(--accent2)':'var(--warn)'}}>{overallCallScore||'—'}%</div>
+                <div style={{fontSize:11,color:'var(--muted)'}}>AVG CALL QUALITY</div>
+              </div>
+            </div>
+          </Card>
+          <div style={{display:'flex',gap:8,justifyContent:'space-between',marginTop:12}}>
+            <div style={{display:'flex',gap:8}}>
+              {activeAppt>0&&<Btn variant="ghost" onClick={()=>setActiveAppt(p=>p-1)}>← Prev</Btn>}
+              {activeAppt<9&&<Btn variant="ghost" onClick={()=>setActiveAppt(p=>p+1)}>Next →</Btn>}
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <Btn variant="ghost" onClick={()=>setStep(1)}>← Back</Btn>
+              <Btn onClick={()=>setStep(3)}>Next: Summary →</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Summary */}
+      {step===3&&(
+        <div className="slide-in">
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,marginBottom:20}}>
+            <Card style={{textAlign:'center'}}>
+              <div style={{fontSize:28,fontFamily:'var(--serif)',color:accuracyPct>=95?'var(--accent2)':'var(--danger)'}}>{accuracyPct}%</div>
+              <div style={{fontSize:11,color:'var(--muted)'}}>ACCURACY SCORE</div>
+              <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>Target: 95%+</div>
+            </Card>
+            <Card style={{textAlign:'center'}}>
+              <div style={{fontSize:28,fontFamily:'var(--serif)',color:overallCallScore>=90?'var(--accent2)':'var(--warn)'}}>{overallCallScore||'—'}%</div>
+              <div style={{fontSize:11,color:'var(--muted)'}}>AVG CALL QUALITY</div>
+              <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>Target: 90%+</div>
+            </Card>
+            <Card style={{textAlign:'center'}}>
+              <div style={{fontSize:28,fontFamily:'var(--serif)',color:Math.round((accuracyPct+overallCallScore)/2)>=90?'var(--accent2)':'var(--danger)'}}>
+                {Math.round((accuracyPct+(overallCallScore||0))/2)}%
+              </div>
+              <div style={{fontSize:11,color:'var(--muted)'}}>OVERALL SCORE</div>
+            </Card>
+          </div>
+
+          <div style={{marginBottom:12}}>
+            <label style={{fontSize:12,fontWeight:600,color:'var(--muted)',display:'block',marginBottom:8,textTransform:'uppercase',letterSpacing:.6}}>Evaluation Result</label>
+            <div style={{display:'flex',gap:10}}>
+              {['PASS','NEEDS IMPROVEMENT','FAIL'].map(r=>(
+                <button key={r} onClick={()=>setSummary(p=>({...p,result:r}))}
+                  style={{flex:1,padding:'10px',borderRadius:8,border:`2px solid ${summary.result===r?(r==='PASS'?'var(--accent2)':r==='FAIL'?'var(--danger)':'var(--warn)'):'var(--border)'}`,background:summary.result===r?(r==='PASS'?'rgba(16,185,129,.15)':r==='FAIL'?'rgba(239,68,68,.15)':'rgba(245,158,11,.15)'):'transparent',color:summary.result===r?(r==='PASS'?'var(--accent2)':r==='FAIL'?'var(--danger)':'var(--warn)'):'var(--muted)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:16}}>
+            <Textarea label="Strengths Observed" value={summary.strengths} onChange={v=>setSummary(p=>({...p,strengths:v}))} placeholder="What did well..." rows={2}/>
+            <Textarea label="Areas for Improvement" value={summary.improvements} onChange={v=>setSummary(p=>({...p,improvements:v}))} placeholder="What needs work..." rows={2}/>
+            <Textarea label="Recommended Action Items" value={summary.actions} onChange={v=>setSummary(p=>({...p,actions:v}))} placeholder="Specific steps for the store or AI team..." rows={2}/>
+            <Textarea label="Evaluator Notes (internal)" value={summary.evaluatorNotes} onChange={v=>setSummary(p=>({...p,evaluatorNotes:v}))} placeholder="Internal notes not included in client report..." rows={2}/>
+          </div>
+
+          <Card style={{marginBottom:16}}>
+            <h3 style={{fontFamily:'var(--serif)',fontSize:15,marginBottom:12}}>Follow-Up Required</h3>
+            <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+              {['Escalate to CEM','Escalate to Director','Re-Evaluate Next Cycle','No Follow-Up Needed'].map(f=>(
+                <button key={f} onClick={()=>setSummary(p=>({...p,followUp:p.followUp===f?'':f}))}
+                  style={{padding:'6px 14px',borderRadius:7,border:`2px solid ${summary.followUp===f?'var(--accent)':'var(--border)'}`,background:summary.followUp===f?'rgba(59,130,246,.15)':'transparent',color:summary.followUp===f?'var(--accent)':'var(--muted)',fontSize:12,cursor:'pointer'}}>
+                  {f}
+                </button>
+              ))}
+            </div>
+          </Card>
+
+          <Card style={{marginBottom:16}}>
+            <h3 style={{fontFamily:'var(--serif)',fontSize:15,marginBottom:12}}>📧 Send to Client</h3>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+              <Input label="Client Contact" value={summary.clientName} onChange={v=>setSummary(p=>({...p,clientName:v}))}/>
+              <Input label="Client Email" type="email" value={summary.clientEmail} onChange={v=>setSummary(p=>({...p,clientEmail:v}))}/>
+            </div>
+            <p style={{fontSize:11,color:'var(--muted)',marginTop:8}}>After saving, use the "Send Report" button to email results via Outlook or HubSpot.</p>
+          </Card>
+
+          <div style={{display:'flex',gap:10,justifyContent:'space-between'}}>
+            <Btn variant="ghost" onClick={()=>setStep(2)}>← Back</Btn>
+            <div style={{display:'flex',gap:10}}>
+              <Btn variant="ghost" onClick={()=>handleSave('draft')}>Save as Draft</Btn>
+              <Btn variant="success" onClick={()=>handleSave('complete')}><Icon.check/> Complete & Save</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── EVALUATIONS PAGE ─────────────────────────────────────────────────────────
+const EvaluationsPage=({user,clients,evaluations,setEvaluations,setClients,pendingClient,setPendingClient})=>{
+  const [selected,setSelected]=useState(pendingClient||null);
+  const [editing,setEditing]=useState(null);
+
+  useEffect(()=>{if(pendingClient){setSelected(pendingClient);setPendingClient(null);}
+  },[pendingClient]);
+
+  const myClients=user.role==='manager'?clients:clients.filter(c=>c.assignedTo===user.id);
+  const myEvals=evaluations.filter(e=>user.role==='manager'||e.evaluatorId===user.id);
+  const inProgress=myEvals.filter(e=>e.status==='draft');
+
+  const saveEval=(data)=>{
+    setEvaluations(prev=>{
+      const existing=prev.find(e=>e.id===data.id);
+      if(existing)return prev.map(e=>e.id===data.id?data:e);
+      return[...prev,data];
+    });
+    if(data.status==='complete'){
+      setClients(prev=>prev.map(c=>c.id===selected.id?{...c,nextDueDate:addDays(today(),14)}:c));
+    }
+    setSelected(null);setEditing(null);
+  };
+
+  if(selected||editing){
+    const client=editing?clients.find(c=>c.id===editing.clientId):selected;
+    return(
+      <div className="fade-in">
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:22}}>
+          <button onClick={()=>{setSelected(null);setEditing(null);}} style={{background:'none',border:'none',color:'var(--muted)',fontSize:13,cursor:'pointer'}}>← Evaluations</button>
+          <span style={{color:'var(--border)'}}>›</span>
+          <span style={{fontSize:13,fontWeight:600}}>{client?.storeName}</span>
+        </div>
+        <EvalForm client={client} user={user} onSave={saveEval} onCancel={()=>{setSelected(null);setEditing(null);}} existing={editing}/>
+      </div>
+    );
+  }
+
+  return(
+    <div className="fade-in">
+      <div style={{marginBottom:22}}>
+        <h2 style={{fontFamily:'var(--serif)',fontSize:24,fontWeight:400}}>Evaluations</h2>
+        <p style={{color:'var(--muted)',fontSize:13,marginTop:2}}>Start a new evaluation or continue a draft</p>
+      </div>
+
+      {inProgress.length>0&&(
+        <div style={{marginBottom:24}}>
+          <h3 style={{fontSize:13,fontWeight:600,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:12}}>In Progress</h3>
+          {inProgress.map(e=>(
+            <Card key={e.id} style={{marginBottom:8,borderLeft:'3px solid var(--warn)'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div>
+                  <div style={{fontWeight:600,fontSize:14}}>{e.clientName}</div>
+                  <div style={{fontSize:12,color:'var(--muted)',marginTop:2}}>Started {fmtDate(e.createdAt)} · {e.evaluatorName}</div>
+                </div>
+                <Btn size="sm" variant="warn" onClick={()=>setEditing(e)}>Continue</Btn>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <h3 style={{fontSize:13,fontWeight:600,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:12}}>Start New Evaluation</h3>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        {myClients.filter(c=>c.status==='active').map(c=>{
+          const due=daysUntil(c.nextDueDate);const overdue=isOverdue(c.nextDueDate);const soon=due!==null&&due>=0&&due<=5;
+          return(
+            <Card key={c.id} style={{cursor:'pointer',borderLeft:`3px solid ${overdue?'var(--danger)':soon?'var(--warn)':'var(--border)'}`}} onClick={()=>setSelected(c)}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div>
+                  <div style={{fontWeight:600,fontSize:14,marginBottom:4}}>{c.storeName}</div>
+                  <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+                    <span style={{fontSize:11,color:'var(--muted)'}}>{c.make}</span>
+                    <span style={{fontSize:11,color:'var(--muted)'}}>{c.scheduler}</span>
+                    {overdue&&<Badge color="red">Overdue</Badge>}
+                    {soon&&!overdue&&<Badge color="amber">Due in {due}d</Badge>}
+                  </div>
+                </div>
+                <div style={{color:'var(--accent)',fontSize:20}}>→</div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─── HISTORY PAGE ─────────────────────────────────────────────────────────────
+const HistoryPage=({user,clients,evaluations,setEvaluations,setClients})=>{
+  const [filterClient,setFilterClient]=useState('');
+  const [filterMake,setFilterMake]=useState('');
+  const [filterScheduler,setFilterScheduler]=useState('');
+  const [filterEval,setFilterEval]=useState('');
+  const [viewing,setViewing]=useState(null);
+  const [emailModal,setEmailModal]=useState(null);
+  const [emailSent,setEmailSent]=useState({});
+
+  const myEvals=evaluations.filter(e=>e.status==='complete'&&(user.role==='manager'||e.evaluatorId===user.id));
+  const filtered=myEvals.filter(e=>
+    (!filterClient||e.clientId===filterClient)&&
+    (!filterMake||e.make===filterMake)&&
+    (!filterScheduler||e.scheduler===filterScheduler)&&
+    (!filterEval||e.evaluatorId===filterEval)
+  ).sort((a,b)=>b.completedAt>a.completedAt?1:-1);
+
+  const generateEmailBody=(e)=>{
+    const lines=[
+      `Dear ${e.summary?.clientName||'Client'},`,
+      ``,
+      `Please find below the results of your recent Proactive Quality Assurance (PQA) evaluation conducted by the Alpha Drive AI team.`,
+      ``,
+      `EVALUATION SUMMARY`,
+      `Store: ${e.clientName}`,
+      `Date: ${fmtDate(e.completedAt)}`,
+      `Evaluator: ${e.evaluatorName}`,
+      ``,
+      `SCORES`,
+      `• Appointment Accuracy: ${e.accuracyScore}% (Target: 95%+)`,
+      `• Avg Call Quality: ${e.callScore}% (Target: 90%+)`,
+      `• Overall Score: ${e.overallScore}%`,
+      `• Result: ${e.summary?.result||'—'}`,
+      ``,
+      `STRENGTHS`,
+      e.summary?.strengths||'—',
+      ``,
+      `AREAS FOR IMPROVEMENT`,
+      e.summary?.improvements||'—',
+      ``,
+      `RECOMMENDED ACTIONS`,
+      e.summary?.actions||'—',
+      ``,
+      `Follow-Up: ${e.summary?.followUp||'None'}`,
+      ``,
+      `Thank you for your continued partnership.`,
+      ``,
+      `Best regards,`,
+      `${e.evaluatorName}`,
+      `Alpha Drive AI — PQA Team`
+    ];
+    return lines.join('\n');
+  };
+
+  const openOutlook=(e)=>{
+    const subject=encodeURIComponent(`PQA Evaluation Results — ${e.clientName} — ${fmtDate(e.completedAt)}`);
+    const body=encodeURIComponent(generateEmailBody(e));
+    const to=encodeURIComponent(e.summary?.clientEmail||'');
+    window.open(`mailto:${to}?subject=${subject}&body=${body}`,'_blank');
+    setEmailSent(p=>({...p,[e.id]:true}));
+    setEmailModal(null);
+  };
+
+  const openHubspot=(e)=>{
+    window.open('https://app.hubspot.com/contacts/','_blank');
+    setEmailModal(null);
+  };
+
+  if(viewing){
+    const e=viewing;
+    return(
+      <div className="fade-in">
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:22}}>
+          <button onClick={()=>setViewing(null)} style={{background:'none',border:'none',color:'var(--muted)',fontSize:13,cursor:'pointer'}}>← History</button>
+          <span style={{color:'var(--border)'}}>›</span>
+          <span style={{fontSize:13,fontWeight:600}}>{e.clientName}</span>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,marginBottom:20}}>
+          <Card style={{textAlign:'center'}}><div style={{fontSize:28,fontFamily:'var(--serif)',color:e.accuracyScore>=95?'var(--accent2)':'var(--danger)'}}>{e.accuracyScore}%</div><div style={{fontSize:11,color:'var(--muted)'}}>ACCURACY</div></Card>
+          <Card style={{textAlign:'center'}}><div style={{fontSize:28,fontFamily:'var(--serif)',color:e.callScore>=90?'var(--accent2)':'var(--warn)'}}>{e.callScore}%</div><div style={{fontSize:11,color:'var(--muted)'}}>CALL QUALITY</div></Card>
+          <Card style={{textAlign:'center'}}><div style={{fontSize:28,fontFamily:'var(--serif)',color:e.overallScore>=90?'var(--accent2)':'var(--danger)'}}>{e.overallScore}%</div><div style={{fontSize:11,color:'var(--muted)'}}>OVERALL</div></Card>
+        </div>
+        <Card style={{marginBottom:14}}>
+          <h3 style={{fontFamily:'var(--serif)',fontSize:16,marginBottom:14}}>Evaluation Details</h3>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+            <div><span style={{fontSize:11,color:'var(--muted)'}}>Store</span><div style={{fontSize:13,fontWeight:600}}>{e.clientName}</div></div>
+            <div><span style={{fontSize:11,color:'var(--muted)'}}>Date</span><div style={{fontSize:13}}>{fmtDate(e.completedAt)}</div></div>
+            <div><span style={{fontSize:11,color:'var(--muted)'}}>Make</span><div style={{fontSize:13}}>{e.make}</div></div>
+            <div><span style={{fontSize:11,color:'var(--muted)'}}>Scheduler</span><div style={{fontSize:13}}>{e.scheduler}</div></div>
+            <div><span style={{fontSize:11,color:'var(--muted)'}}>Evaluator</span><div style={{fontSize:13}}>{e.evaluatorName}</div></div>
+            <div><span style={{fontSize:11,color:'var(--muted)'}}>Result</span><div><Badge color={e.summary?.result==='PASS'?'green':e.summary?.result==='FAIL'?'red':'amber'}>{e.summary?.result||'—'}</Badge></div></div>
+          </div>
+        </Card>
+        {e.appointments&&(
+          <Card style={{marginBottom:14}}>
+            <h3 style={{fontFamily:'var(--serif)',fontSize:16,marginBottom:14}}>Appointment Review</h3>
+            <div style={{display:'flex',flexDirection:'column',gap:6}}>
+              {e.appointments.map((a,i)=>(
+                <div key={i} style={{display:'flex',gap:12,padding:'8px 0',borderBottom:'1px solid var(--border)',fontSize:12}}>
+                  <span style={{width:20,fontWeight:600}}>{i+1}</span>
+                  <span style={{color:a.accurate===true?'var(--accent2)':'var(--danger)'}}>{a.accurate===true?'✅':'❌'}</span>
+                  <span style={{flex:1,color:'var(--text)'}}>{a.customerId||'—'}</span>
+                  <span style={{color:'var(--muted)'}}>{a.serviceType||'—'}</span>
+                  {a.notes&&<span style={{color:'var(--muted)',fontStyle:'italic'}}>{a.notes}</span>}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+        <Card style={{marginBottom:14}}>
+          <h3 style={{fontFamily:'var(--serif)',fontSize:16,marginBottom:12}}>Coaching Notes</h3>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {e.summary?.strengths&&<div><div style={{fontSize:11,color:'var(--accent2)',marginBottom:4,fontWeight:600}}>STRENGTHS</div><div style={{fontSize:13}}>{e.summary.strengths}</div></div>}
+            {e.summary?.improvements&&<div><div style={{fontSize:11,color:'var(--warn)',marginBottom:4,fontWeight:600}}>AREAS FOR IMPROVEMENT</div><div style={{fontSize:13}}>{e.summary.improvements}</div></div>}
+            {e.summary?.actions&&<div><div style={{fontSize:11,color:'var(--muted)',marginBottom:4,fontWeight:600}}>RECOMMENDED ACTIONS</div><div style={{fontSize:13}}>{e.summary.actions}</div></div>}
+          </div>
+        </Card>
+        <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
+          <Btn variant="ghost" onClick={()=>setEmailModal(e)}><Icon.mail/> Send to Client</Btn>
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div className="fade-in">
+      <div style={{marginBottom:22}}>
+        <h2 style={{fontFamily:'var(--serif)',fontSize:24,fontWeight:400}}>Evaluation History</h2>
+        <p style={{color:'var(--muted)',fontSize:13,marginTop:2}}>{filtered.length} completed evaluation{filtered.length!==1?'s':''}</p>
+      </div>
+      <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:18}}>
+        <select value={filterClient} onChange={e=>setFilterClient(e.target.value)} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:8,padding:'8px 12px',color:'var(--text)',fontSize:13,outline:'none'}}>
+          <option value="">All Stores</option>{clients.map(c=><option key={c.id} value={c.id}>{c.storeName}</option>)}
+        </select>
+        <select value={filterMake} onChange={e=>setFilterMake(e.target.value)} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:8,padding:'8px 12px',color:'var(--text)',fontSize:13,outline:'none'}}>
+          <option value="">All Makes</option>{MAKES.map(m=><option key={m}>{m}</option>)}
+        </select>
+        <select value={filterScheduler} onChange={e=>setFilterScheduler(e.target.value)} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:8,padding:'8px 12px',color:'var(--text)',fontSize:13,outline:'none'}}>
+          <option value="">All Schedulers</option>{SCHEDULERS.map(s=><option key={s}>{s}</option>)}
+        </select>
+        {user.role==='manager'&&<select value={filterEval} onChange={e=>setFilterEval(e.target.value)} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:8,padding:'8px 12px',color:'var(--text)',fontSize:13,outline:'none'}}>
+          <option value="">All Evaluators</option>{USERS.filter(u=>u.role==='evaluator').map(u=><option key={u.id} value={u.id}>{u.name}</option>)}
+        </select>}
+      </div>
+      <div style={{display:'flex',flexDirection:'column',gap:8}}>
+        {filtered.length===0&&<Card style={{textAlign:'center',padding:40}}><p style={{color:'var(--muted)'}}>No completed evaluations yet.</p></Card>}
+        {filtered.map(e=>(
+          <Card key={e.id} style={{cursor:'pointer'}} onClick={()=>setViewing(e)}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{flex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4,flexWrap:'wrap'}}>
+                  <span style={{fontSize:14,fontWeight:600}}>{e.clientName}</span>
+                  <Badge color={e.summary?.result==='PASS'?'green':e.summary?.result==='FAIL'?'red':'amber'}>{e.summary?.result||'—'}</Badge>
+                  {emailSent[e.id]&&<Badge color="green">✉ Sent</Badge>}
+                </div>
+                <div style={{display:'flex',gap:16,flexWrap:'wrap'}}>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>📅 {fmtDate(e.completedAt)}</span>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>🚗 {e.make}</span>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>👤 {e.evaluatorName}</span>
+                  <span style={{fontSize:12,color:'var(--accent2)'}}>Overall: {e.overallScore}%</span>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>Accuracy: {e.accuracyScore}%</span>
+                </div>
+              </div>
+              <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                <Btn size="sm" variant="ghost" onClick={e2=>{e2.stopPropagation();setEmailModal(e);}}><Icon.mail/></Btn>
+                <Btn size="sm" variant="ghost" onClick={e2=>{e2.stopPropagation();setViewing(e);}}><Icon.eye/></Btn>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+      {emailModal&&(
+        <Modal title="Send Evaluation Report" onClose={()=>setEmailModal(null)}>
+          <p style={{fontSize:13,color:'var(--muted)',marginBottom:16}}>Choose how to send the evaluation results to <strong>{emailModal.clientName}</strong>:</p>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            <div style={{display:'flex',gap:10}}>
+              <div style={{flex:1,background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:10,padding:16,textAlign:'center'}}>
+                <div style={{fontSize:24,marginBottom:8}}>📧</div>
+                <div style={{fontWeight:600,fontSize:14,marginBottom:4}}>Outlook</div>
+                <p style={{fontSize:11,color:'var(--muted)',marginBottom:12}}>Opens Outlook with pre-filled subject, recipient, and body</p>
+                <Btn onClick={()=>openOutlook(emailModal)} style={{width:'100%',justifyContent:'center'}}>Open in Outlook</Btn>
+              </div>
+              <div style={{flex:1,background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:10,padding:16,textAlign:'center'}}>
+                <div style={{fontSize:24,marginBottom:8}}>🟠</div>
+                <div style={{fontWeight:600,fontSize:14,marginBottom:4}}>HubSpot</div>
+                <p style={{fontSize:11,color:'var(--muted)',marginBottom:12}}>Opens HubSpot contacts to find and email the client</p>
+                <Btn variant="warn" onClick={()=>openHubspot(emailModal)} style={{width:'100%',justifyContent:'center'}}>Open HubSpot</Btn>
+              </div>
+            </div>
+            <div style={{background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:8,padding:12}}>
+              <div style={{fontSize:11,color:'var(--muted)',marginBottom:6,fontWeight:600}}>PREVIEW</div>
+              <pre style={{fontSize:11,color:'var(--text)',whiteSpace:'pre-wrap',lineHeight:1.6,maxHeight:200,overflow:'auto'}}>{generateEmailBody(emailModal)}</pre>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+};
+
+// ─── REPORTS PAGE ─────────────────────────────────────────────────────────────
+const ReportsPage=({user,clients,evaluations})=>{
+  const [groupBy,setGroupBy]=useState('client');
+  const completed=evaluations.filter(e=>e.status==='complete');
+
+  const groupData=useMemo(()=>{
+    const groups={};
+    completed.forEach(e=>{
+      const key=groupBy==='client'?e.clientName:groupBy==='make'?e.make:e.scheduler;
+      if(!groups[key])groups[key]={name:key,evals:[],scores:[],accuracy:[],call:[]};
+      groups[key].evals.push(e);
+      groups[key].scores.push(e.overallScore||0);
+      groups[key].accuracy.push(e.accuracyScore||0);
+      groups[key].call.push(e.callScore||0);
+    });
+    return Object.values(groups).map(g=>({
+      ...g,
+      avgScore:Math.round(g.scores.reduce((a,b)=>a+b,0)/g.scores.length),
+      avgAccuracy:Math.round(g.accuracy.reduce((a,b)=>a+b,0)/g.accuracy.length),
+      avgCall:Math.round(g.call.reduce((a,b)=>a+b,0)/g.call.length),
+      count:g.evals.length
+    })).sort((a,b)=>b.avgScore-a.avgScore);
+  },[completed,groupBy]);
+
+  const monthlyTrend=useMemo(()=>{
+    const months={};
+    completed.forEach(e=>{
+      const d=new Date(e.completedAt||'');
+      const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      if(!months[k])months[k]={month:k,scores:[],count:0};
+      months[k].scores.push(e.overallScore||0);
+      months[k].count++;
+    });
+    return Object.values(months).map(m=>({...m,avg:Math.round(m.scores.reduce((a,b)=>a+b,0)/m.scores.length)})).sort((a,b)=>a.month>b.month?1:-1).slice(-6);
+  },[completed]);
+
+  const maxScore=Math.max(...monthlyTrend.map(m=>m.avg),100);
+
+  return(
+    <div className="fade-in">
+      <div style={{marginBottom:22}}>
+        <h2 style={{fontFamily:'var(--serif)',fontSize:24,fontWeight:400}}>Reports & Trends</h2>
+        <p style={{color:'var(--muted)',fontSize:13,marginTop:2}}>Performance analytics across all evaluations</p>
+      </div>
+      {completed.length===0&&<Card style={{textAlign:'center',padding:40}}><p style={{color:'var(--muted)'}}>Complete some evaluations to see reports.</p></Card>}
+      {completed.length>0&&<>
+        {/* Monthly trend chart */}
+        {monthlyTrend.length>1&&<Card style={{marginBottom:18}}>
+          <h3 style={{fontFamily:'var(--serif)',fontSize:16,marginBottom:16}}>Monthly Score Trend</h3>
+          <div style={{display:'flex',alignItems:'flex-end',gap:8,height:120}}>
+            {monthlyTrend.map(m=>(
+              <div key={m.month} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
+                <div style={{fontSize:11,color:'var(--accent)',fontWeight:600}}>{m.avg}%</div>
+                <div style={{width:'100%',background:'var(--accent)',borderRadius:'4px 4px 0 0',height:`${(m.avg/maxScore)*100}px`,transition:'height .5s ease',opacity:.8}}/>
+                <div style={{fontSize:10,color:'var(--muted)'}}>{m.month.slice(5)}/{m.month.slice(2,4)}</div>
+                <div style={{fontSize:10,color:'var(--muted)'}}>{m.count} eval{m.count!==1?'s':''}</div>
+              </div>
+            ))}
+          </div>
+        </Card>}
+        {/* Group breakdown */}
+        <Card>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+            <h3 style={{fontFamily:'var(--serif)',fontSize:16}}>Performance Breakdown</h3>
+            <div style={{display:'flex',gap:6}}>
+              {['client','make','scheduler'].map(g=>(
+                <button key={g} onClick={()=>setGroupBy(g)}
+                  style={{padding:'5px 12px',borderRadius:7,border:`1px solid ${groupBy===g?'var(--accent)':'var(--border)'}`,background:groupBy===g?'rgba(59,130,246,.15)':'transparent',color:groupBy===g?'var(--accent)':'var(--muted)',fontSize:12,cursor:'pointer',textTransform:'capitalize'}}>
+                  By {g}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'auto 1fr 1fr 1fr auto',gap:'8px 16px',alignItems:'center'}}>
+            <div style={{fontSize:11,color:'var(--muted)',fontWeight:600}}>NAME</div>
+            <div style={{fontSize:11,color:'var(--muted)',fontWeight:600}}>ACCURACY</div>
+            <div style={{fontSize:11,color:'var(--muted)',fontWeight:600}}>CALL QUALITY</div>
+            <div style={{fontSize:11,color:'var(--muted)',fontWeight:600}}>OVERALL</div>
+            <div style={{fontSize:11,color:'var(--muted)',fontWeight:600}}>EVALS</div>
+            {groupData.map(g=><>
+              <div key={g.name+'n'} style={{fontSize:13,fontWeight:500}}>{g.name}</div>
+              <div key={g.name+'a'}>
+                <div style={{height:6,background:'var(--surface2)',borderRadius:3,overflow:'hidden'}}>
+                  <div style={{height:'100%',width:`${g.avgAccuracy}%`,background:g.avgAccuracy>=95?'var(--accent2)':'var(--danger)',borderRadius:3}}/>
+                </div>
+                <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{g.avgAccuracy}%</div>
+              </div>
+              <div key={g.name+'c'}>
+                <div style={{height:6,background:'var(--surface2)',borderRadius:3,overflow:'hidden'}}>
+                  <div style={{height:'100%',width:`${g.avgCall}%`,background:g.avgCall>=90?'var(--accent2)':'var(--warn)',borderRadius:3}}/>
+                </div>
+                <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{g.avgCall}%</div>
+              </div>
+              <div key={g.name+'o'}>
+                <div style={{height:6,background:'var(--surface2)',borderRadius:3,overflow:'hidden'}}>
+                  <div style={{height:'100%',width:`${g.avgScore}%`,background:g.avgScore>=90?'var(--accent2)':'var(--danger)',borderRadius:3}}/>
+                </div>
+                <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{g.avgScore}%</div>
+              </div>
+              <div key={g.name+'ct'} style={{fontSize:13,color:'var(--muted)',textAlign:'right'}}>{g.count}</div>
+            </>)}
+          </div>
+        </Card>
+      </>}
+    </div>
+  );
+};
+
+// ─── TEAM PAGE (managers only) ────────────────────────────────────────────────
+const TeamPage=({user,clients,evaluations})=>{
+  const evaluators=USERS.filter(u=>u.role==='evaluator');
+  return(
+    <div className="fade-in">
+      <div style={{marginBottom:22}}>
+        <h2 style={{fontFamily:'var(--serif)',fontSize:24,fontWeight:400}}>Team Management</h2>
+        <p style={{color:'var(--muted)',fontSize:13,marginTop:2}}>Evaluator workloads and assignments</p>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,marginBottom:24}}>
+        {evaluators.map(ev=>{
+          const evClients=clients.filter(c=>c.assignedTo===ev.id&&c.status==='active');
+          const evEvals=evaluations.filter(e=>e.evaluatorId===ev.id&&e.status==='complete');
+          const overdue=evClients.filter(c=>isOverdue(c.nextDueDate)).length;
+          const thisMonth=evEvals.filter(e=>{const d=new Date(e.completedAt||'');const n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear()}).length;
+          return(
+            <Card key={ev.id}>
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+                <div style={{width:40,height:40,borderRadius:10,background:'rgba(59,130,246,.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'var(--accent)'}}>{ev.name.charAt(0)}</div>
+                <div>
+                  <div style={{fontWeight:600,fontSize:14}}>{ev.name}</div>
+                  <Badge color="blue">evaluator</Badge>
+                </div>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                <div style={{display:'flex',justify:'space-between',alignItems:'center'}}>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>Assigned Stores</span>
+                  <strong style={{fontSize:13}}>{evClients.length}</strong>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>Evals This Month</span>
+                  <strong style={{fontSize:13,color:'var(--accent2)'}}>{thisMonth}</strong>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>Overdue</span>
+                  <strong style={{fontSize:13,color:overdue>0?'var(--danger)':'var(--accent2)'}}>{overdue}</strong>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>Total Evals</span>
+                  <strong style={{fontSize:13}}>{evEvals.length}</strong>
+                </div>
+              </div>
+              <div style={{marginTop:14}}>
+                <div style={{fontSize:11,color:'var(--muted)',marginBottom:6,fontWeight:600}}>ASSIGNED STORES</div>
+                {evClients.length===0&&<div style={{fontSize:12,color:'var(--muted)'}}>No active stores assigned.</div>}
+                {evClients.map(c=>(
+                  <div key={c.id} style={{display:'flex',justifyContent:'space-between',padding:'4px 0',fontSize:12}}>
+                    <span>{c.storeName}</span>
+                    {isOverdue(c.nextDueDate)&&<Badge color="red">Overdue</Badge>}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+      <Card>
+        <h3 style={{fontFamily:'var(--serif)',fontSize:16,marginBottom:12}}>Managers</h3>
+        <div style={{display:'flex',gap:14}}>
+          {USERS.filter(u=>u.role==='manager').map(m=>(
+            <div key={m.id} style={{display:'flex',alignItems:'center',gap:10}}>
+              <div style={{width:36,height:36,borderRadius:9,background:'rgba(168,85,247,.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,color:'#c084fc',fontWeight:700}}>{m.name.charAt(0)}</div>
+              <div><div style={{fontSize:13,fontWeight:600}}>{m.name}</div><Badge color="purple">manager</Badge></div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+const App=()=>{
+  const [user,setUser]=useState(()=>DB.get('pqa_session',null));
+  const [page,setPage]=useState('dashboard');
+  const [clients,setClients]=useState(()=>DB.get('pqa_clients',[]));
+  const [evaluations,setEvaluations]=useState(()=>DB.get('pqa_evals',[]));
+  const [pendingClient,setPendingClient]=useState(null);
+
+  useEffect(()=>{DB.set('pqa_clients',clients);},[clients]);
+  useEffect(()=>{DB.set('pqa_evals',evaluations);},[evaluations]);
+  useEffect(()=>{DB.set('pqa_session',user);},[user]);
+
+  // Overdue reminder check
+  useEffect(()=>{
+    if(!user)return;
+    const myClients=user.role==='manager'?clients:clients.filter(c=>c.assignedTo===user.id);
+    const overdue=myClients.filter(c=>isOverdue(c.nextDueDate)&&c.status==='active');
+    if(overdue.length>0){
+      const lastNotif=DB.get('pqa_last_notif',null);
+      const todayStr=today();
+      if(lastNotif!==todayStr&&'Notification'in window){
+        Notification.requestPermission().then(p=>{
+          if(p==='granted'){
+            new Notification('PQA Tracker',{body:`${overdue.length} evaluation${overdue.length>1?'s are':' is'} overdue!`,icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⚡</text></svg>'});
+            DB.set('pqa_last_notif',todayStr);
+          }
+        });
+      }
+    }
+  },[user,clients]);
+
+  if(!user)return<LoginPage onLogin={u=>{setUser(u);setPage('dashboard');}}/>;
+
+  const setClientsAndPersist=(v)=>setClients(v);
+  const setEvalsAndPersist=(v)=>setEvaluations(v);
+
+  return(
+    <div style={{display:'flex'}}>
+      <Sidebar user={user} page={page} setPage={setPage} onLogout={()=>{setUser(null);DB.set('pqa_session',null);}}/>
+      <main style={{marginLeft:220,flex:1,padding:32,minHeight:'100vh'}}>
+        {page==='dashboard'&&<Dashboard user={user} clients={clients} evaluations={evaluations} setPage={setPage}/>}
+        {page==='clients'&&<ClientsPage user={user} clients={clients} setClients={setClientsAndPersist} evaluations={evaluations} setPage={setPage} setPendingClient={setPendingClient}/>}
+        {page==='evaluations'&&<EvaluationsPage user={user} clients={clients} evaluations={evaluations} setEvaluations={setEvalsAndPersist} setClients={setClientsAndPersist} pendingClient={pendingClient} setPendingClient={setPendingClient}/>}
+        {page==='history'&&<HistoryPage user={user} clients={clients} evaluations={evaluations} setEvaluations={setEvalsAndPersist} setClients={setClientsAndPersist}/>}
+        {page==='reports'&&<ReportsPage user={user} clients={clients} evaluations={evaluations}/>}
+        {page==='users'&&user.role==='manager'&&<TeamPage user={user} clients={clients} evaluations={evaluations}/>}
+      </main>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
