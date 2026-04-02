@@ -1,6 +1,3 @@
-Here's the full code — click the copy button in the top right corner of the code block:Here's the full code — copy everything inside this code block:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,6 +47,9 @@ const DB={
   get:(k,d=[])=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
   set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
 };
+
+// ─── PRE-LOADED CLIENTS (from HubSpot export 2026-04-02) ─────────────────────
+const SEED_CLIENTS=[{"id":"hs0000","storeName":"Preferred Chrysler Dodge Jeep Ram of Grand Haven","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0001","storeName":"Subaru of Decatur","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0002","storeName":"Naples Mazda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0003","storeName":"Acura of Palm Beach","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0004","storeName":"Sayville Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0005","storeName":"Mercedes Benz of Collierville","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0006","storeName":"Elder Ford of Tampa","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0007","storeName":"New Port Richey Volkswagen","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0008","storeName":"Tampa Honda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0009","storeName":"Kia of Round Rock","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0010","storeName":"Preferred Chevrolet Buick GMC","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0011","storeName":"Nissan of Clovis","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0012","storeName":"Mazda of Fort Myers","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0013","storeName":"Jaguar Land Rover Ocala","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0014","storeName":"Volvo Cars Fort Myers","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0015","storeName":"Nissan of Fort Myers","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0016","storeName":"Kia of Cape Coral","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0017","storeName":"Fred Anderson Toyota (Raleigh)","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0018","storeName":"Randy Marion Ford Lincoln of Statesville","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0019","storeName":"Randy Marion CDJR of Wilkesboro","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0020","storeName":"Fred Anderson Honda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0021","storeName":"Jaguar Land Rover Southampton","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0022","storeName":"Jagaur Land Rover Glen Cove","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0023","storeName":"Hyundai of Fort Myers","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0024","storeName":"Brandon Hyundai","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0025","storeName":"Desert 215 Superstore","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0026","storeName":"Audi Fort Lauderdale","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0027","storeName":"Honda of Seattle","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0028","storeName":"Toyota of Seattle","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0029","storeName":"Sahara Chrysler Dodge Ram","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0030","storeName":"Mercedes-Benz of Jackson","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0031","storeName":"BMW & Mini Markham","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0032","storeName":"Wesley Chapel Honda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0033","storeName":"Preferred Chrysler Dodge Jeep","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0034","storeName":"Sun Toyota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0035","storeName":"Hyundai of Kennesaw","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0036","storeName":"Koch Rt2 Toyota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0037","storeName":"Koch 33 Volkswagen","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0038","storeName":"Koch 33 Mazda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0039","storeName":"Koch 33 Toyota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0040","storeName":"Bethlehem Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0041","storeName":"Nazareth Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0042","storeName":"Koch 33 Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0043","storeName":"Mercedes-Benz of Paramus","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0044","storeName":"Audi Coral Springs","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0045","storeName":"Randy Marion Ford West Jefferson","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0046","storeName":"Gettel Genesis of Sarasota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0047","storeName":"Fort Myers Genesis","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0048","storeName":"Gettel Toyota of Lakewood","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0049","storeName":"Randy Marion Chevrolet West Jefferson","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0050","storeName":"Gettel Hyundai of Sarasota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0051","storeName":"Audi New Rochelle","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0052","storeName":"BMW of Ramsey","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0053","storeName":"Randy Marion Subaru","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0054","storeName":"Randy Marion Chevrolet Cadillac of Mooresville","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0055","storeName":"Randy Marion CDJR of Salisbury","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0056","storeName":"Kia of Wesley Chapel","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0057","storeName":"Randy Marion Kia","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0058","storeName":"Randy Marion Buick GMC","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0059","storeName":"Randy Marion Hickory","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0060","storeName":"Randy Marion Cadillac of Jacksonville","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0061","storeName":"Naples Chrysler Dodge Jeep Ram","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0062","storeName":"Mercedes-Benz of Gainesville","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0063","storeName":"Jenkins Kia of Gainesville","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0064","storeName":"Colonial Hyundai","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0065","storeName":"Fox Valley Volkswagen of Crystal Lake","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0066","storeName":"Sam Galloway Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0067","storeName":"Jenkins Kia of Ocala","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0068","storeName":"Fox Valley Volkswagen","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0069","storeName":"Fox Valley Buick GMC","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0070","storeName":"Lexus of Valencia","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0071","storeName":"Toyota of Grand Rapids","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0072","storeName":"Priority Honda Chesapeake","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0073","storeName":"Suburban Subaru of Troy","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0074","storeName":"Al Packer's White Marsh Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0075","storeName":"Al Packer Ford West Palm Beach","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0076","storeName":"Acton Toyota of Litteton","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Tzion Hamilton","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0077","storeName":"Fred Beans Toyota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Bethany Fisher","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0078","storeName":"Northway Toyota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Bethany Fisher","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0079","storeName":"BMW of South Albany","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Bethany Fisher","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0080","storeName":"Audi Albany","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Bethany Fisher","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0081","storeName":"Kunes Buick GMC of Oak Creek","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0082","storeName":"Allen Turner Hyundai","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0083","storeName":"Northtown Subaru","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0084","storeName":"Lake View Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0085","storeName":"Grieco Ford of Branford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0086","storeName":"JL Freed Honda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0087","storeName":"DeVoe Buick GMC & Subaru of Naples","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0088","storeName":"Kelly CDJR Mitsubishi","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0089","storeName":"McGrath Kia of St. Charles","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0090","storeName":"Mcgrath Honda Of St. Charles","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0091","storeName":"Allen Turner Chevrolet Cadillac of Auburn","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0092","storeName":"Allen Turner Chevrolet- Crestview","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0093","storeName":"Allen Turner Genesis","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0094","storeName":"Gunther Volkswagen Pompano Beach","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0095","storeName":"Genesis of West Warwick","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0096","storeName":"Greenville CDJR","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0097","storeName":"Academy CDJR","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0098","storeName":"Button CDJR","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0099","storeName":"Twin City Chrysler Dodge Jeep Ram Fiat","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0100","storeName":"Peruzzi Toyota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0101","storeName":"Balise Chevrolet of Warwick","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0102","storeName":"Balise Toyota of Warwick","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0103","storeName":"Balise Nissan of Warwick","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0104","storeName":"Toyota of Greensboro","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0105","storeName":"Gunther Volkswagen of Daytona Beach","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0106","storeName":"Balise Volkswagen","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0107","storeName":"Balise Subaru","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0108","storeName":"Balise Honda of West Warwick","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0109","storeName":"Smart Toyota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0110","storeName":"Kelly Hyundai of Stroudsburg","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0111","storeName":"Kelly Nissan","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0112","storeName":"Balise Hyundai Of Fairfield","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0113","storeName":"Balise Mazda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0114","storeName":"McGonigal Buick GMC Cadillac","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0115","storeName":"Gunther Volkswagen of Delray Beach","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0116","storeName":"Gunther Volvo Cars Delray Beach","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0117","storeName":"Faulkner Infiniti of Willow Grove","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0118","storeName":"Gunther Volvo Cars Coconut Creek","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0119","storeName":"Faulkner Toyota Trevose","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0120","storeName":"Faulkner Nissan Jenkintown","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0121","storeName":"Gunther Kia","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0122","storeName":"Gunther Mitsubishi Coconut Creek","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0123","storeName":"Gunther Mazda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0124","storeName":"Faulkner Honda of Harrisburg","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0125","storeName":"Gunther Volvo Cars Daytona Beach","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0126","storeName":"Conicelli Toyota Conshohocken","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0127","storeName":"Auffenberg Ford Belleville","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0128","storeName":"Dean Honda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0129","storeName":"Conicelli Toyota Springfield","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0130","storeName":"Conicelli Honda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0131","storeName":"Conicelli Hyundai","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0132","storeName":"Conicelli Nissan","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0133","storeName":"Auffenberg Nissan","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0134","storeName":"Auffenberg Kia","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0135","storeName":"Auffenberg Volkswagen","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0136","storeName":"Auffenberg Chrysler Dodge Jeep Ram","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0137","storeName":"Auffenberg Mazda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0138","storeName":"Auffenberg Ford O'Fallon","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0139","storeName":"Hendrick Cadillac","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0140","storeName":"Hendrick Chevrolet","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0141","storeName":"Richard Kay Superstore","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0142","storeName":"McGrath Honda of Elgin","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0143","storeName":"Darlings Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0144","storeName":"Darling's Volkswagen Audi","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0145","storeName":"Audi West Palm Beach","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0146","storeName":"Toyota of Smithfield","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0147","storeName":"Apple Honda","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0148","storeName":"Balise Hyundai","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Sylvia Padilla","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0149","storeName":"Steeltown Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0150","storeName":"Phil Long Hyundai of Chapel Hills","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0151","storeName":"Long Chevrolet Buick GMC","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0152","storeName":"Mercedes Benz of Selma","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0153","storeName":"Tamiami Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0154","storeName":"University Ford Durham","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0155","storeName":"Crossroads Nissan","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0156","storeName":"Lexus Of Edison","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0157","storeName":"Webb Hyundai Merrillville","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0158","storeName":"Friendly Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0159","storeName":"Audi Queens","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0160","storeName":"Rich Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0161","storeName":"Standard Chrysler Dodge Jeep Ram","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0162","storeName":"Volvo Cars Santa Monica","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0163","storeName":"Mark Christopher Auto Center","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0164","storeName":"Honda of Frontenac","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0165","storeName":"Mercedes-Benz Country Hills","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0166","storeName":"Ron Westphal Chevrolet, Inc.","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0167","storeName":"Joyce Buick GMC","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0168","storeName":"Phil Long Ford of Chapel Hills","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0169","storeName":"Kendall Toyota of Bend","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0170","storeName":"Mercedes-Benz at Long of Chattanooga","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0171","storeName":"New Century Volkswagen","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0172","storeName":"Cypress Motors","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0173","storeName":"Century West BMW","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0174","storeName":"Sherwood Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0175","storeName":"Bell Lexus North Scottsdale","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0176","storeName":"Long Hyundai","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0177","storeName":"Cardinal Chevrolet","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0178","storeName":"DCH Honda of Nanuet","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0179","storeName":"Kline Nissan","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0180","storeName":"Hoselton Chevrolet","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0181","storeName":"Kline Volvo Cars of Maplewood","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0182","storeName":"Black Bear Chrysler Dodge Jeep Ram","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0183","storeName":"Langway Toyota","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0184","storeName":"Dan Perkins Subaru","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0185","storeName":"Tom Bell Chevrolet","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0186","storeName":"Riverhead Toyota Scion","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0187","storeName":"Jaguar Land Rover of Huntington","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0188","storeName":"Heuberger Subaru","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0189","storeName":"Bill Currie Ford","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0190","storeName":"Peake BMW","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0191","storeName":"Mercedes Benz of Caldwell","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0192","storeName":"Haley Toyota of Roanoke","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"},{"id":"hs0193","storeName":"Southwest Kia","location":"","make":"","scheduler":"","contactName":"","contactEmail":"","assignedTo":"","csm":"Iman Worship","status":"active","nextDueDate":null,"createdAt":"2026-04-02"}];
 
 // ─── SEED DATA ────────────────────────────────────────────────────────────────
 const USERS=[
@@ -462,7 +462,7 @@ const ClientsPage=({user,clients,setClients,evaluations,setPage,setPendingClient
 // ─── EVALUATION FORM ──────────────────────────────────────────────────────────
 const EvalForm=({client,user,onSave,onCancel,clients,existing=null})=>{
   const blankAppt=()=>({id:genId(),customerId:'',scheduledDate:'',scheduledTime:'',serviceType:'',aiSummary:'',schedulerData:'',accurate:null,notes:'',scores:{},criteriaNotes:{}});
-  const [step,setStep]=useState(0);
+  const [step,setStep]=useState(0);// 0=info,1=appointments,2=scoring,3=summary
   const [appointments,setAppointments]=useState(existing?.appointments||Array.from({length:10},blankAppt));
   const [activeAppt,setActiveAppt]=useState(0);
   const [summary,setSummary]=useState({strengths:'',improvements:'',actions:'',followUp:'none',result:'',evaluatorNotes:'',clientName:client?.contactName||'',clientEmail:client?.contactEmail||''});
@@ -492,6 +492,7 @@ const EvalForm=({client,user,onSave,onCancel,clients,existing=null})=>{
 
   return(
     <div className="fade-in">
+      {/* Step indicator */}
       <div style={{display:'flex',gap:0,marginBottom:28,position:'relative'}}>
         {steps.map((s,i)=>(
           <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',cursor:'pointer'}} onClick={()=>setStep(i)}>
@@ -503,6 +504,7 @@ const EvalForm=({client,user,onSave,onCancel,clients,existing=null})=>{
         ))}
       </div>
 
+      {/* Step 0: Client Info */}
       {step===0&&(
         <div className="slide-in">
           <Card style={{marginBottom:16}}>
@@ -528,6 +530,7 @@ const EvalForm=({client,user,onSave,onCancel,clients,existing=null})=>{
         </div>
       )}
 
+      {/* Step 1: Appointments */}
       {step===1&&(
         <div className="slide-in">
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
@@ -575,6 +578,7 @@ const EvalForm=({client,user,onSave,onCancel,clients,existing=null})=>{
         </div>
       )}
 
+      {/* Step 2: Scoring */}
       {step===2&&(
         <div className="slide-in">
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
@@ -630,6 +634,7 @@ const EvalForm=({client,user,onSave,onCancel,clients,existing=null})=>{
         </div>
       )}
 
+      {/* Step 3: Summary */}
       {step===3&&(
         <div className="slide-in">
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,marginBottom:20}}>
@@ -812,20 +817,37 @@ const HistoryPage=({user,clients,evaluations,setEvaluations,setClients})=>{
 
   const generateEmailBody=(e)=>{
     const lines=[
-      `Dear ${e.summary?.clientName||'Client'},`,``,
-      `Please find below the results of your recent Proactive Quality Assurance (PQA) evaluation conducted by the Alpha Drive AI team.`,``,
+      `Dear ${e.summary?.clientName||'Client'},`,
+      ``,
+      `Please find below the results of your recent Proactive Quality Assurance (PQA) evaluation conducted by the Alpha Drive AI team.`,
+      ``,
       `EVALUATION SUMMARY`,
-      `Store: ${e.clientName}`,`Date: ${fmtDate(e.completedAt)}`,`Evaluator: ${e.evaluatorName}`,``,
+      `Store: ${e.clientName}`,
+      `Date: ${fmtDate(e.completedAt)}`,
+      `Evaluator: ${e.evaluatorName}`,
+      ``,
       `SCORES`,
       `• Appointment Accuracy: ${e.accuracyScore}% (Target: 95%+)`,
       `• Avg Call Quality: ${e.callScore}% (Target: 90%+)`,
-      `• Overall Score: ${e.overallScore}%`,`• Result: ${e.summary?.result||'—'}`,``,
-      `STRENGTHS`,e.summary?.strengths||'—',``,
-      `AREAS FOR IMPROVEMENT`,e.summary?.improvements||'—',``,
-      `RECOMMENDED ACTIONS`,e.summary?.actions||'—',``,
-      `Follow-Up: ${e.summary?.followUp||'None'}`,``,
-      `Thank you for your continued partnership.`,``,
-      `Best regards,`,`${e.evaluatorName}`,`Alpha Drive AI — PQA Team`
+      `• Overall Score: ${e.overallScore}%`,
+      `• Result: ${e.summary?.result||'—'}`,
+      ``,
+      `STRENGTHS`,
+      e.summary?.strengths||'—',
+      ``,
+      `AREAS FOR IMPROVEMENT`,
+      e.summary?.improvements||'—',
+      ``,
+      `RECOMMENDED ACTIONS`,
+      e.summary?.actions||'—',
+      ``,
+      `Follow-Up: ${e.summary?.followUp||'None'}`,
+      ``,
+      `Thank you for your continued partnership.`,
+      ``,
+      `Best regards,`,
+      `${e.evaluatorName}`,
+      `Alpha Drive AI — PQA Team`
     ];
     return lines.join('\n');
   };
@@ -839,7 +861,10 @@ const HistoryPage=({user,clients,evaluations,setEvaluations,setClients})=>{
     setEmailModal(null);
   };
 
-  const openHubspot=(e)=>{window.open('https://app.hubspot.com/contacts/','_blank');setEmailModal(null);};
+  const openHubspot=(e)=>{
+    window.open('https://app.hubspot.com/contacts/','_blank');
+    setEmailModal(null);
+  };
 
   if(viewing){
     const e=viewing;
@@ -1019,6 +1044,7 @@ const ReportsPage=({user,clients,evaluations})=>{
       </div>
       {completed.length===0&&<Card style={{textAlign:'center',padding:40}}><p style={{color:'var(--muted)'}}>Complete some evaluations to see reports.</p></Card>}
       {completed.length>0&&<>
+        {/* Monthly trend chart */}
         {monthlyTrend.length>1&&<Card style={{marginBottom:18}}>
           <h3 style={{fontFamily:'var(--serif)',fontSize:16,marginBottom:16}}>Monthly Score Trend</h3>
           <div style={{display:'flex',alignItems:'flex-end',gap:8,height:120}}>
@@ -1032,6 +1058,7 @@ const ReportsPage=({user,clients,evaluations})=>{
             ))}
           </div>
         </Card>}
+        {/* Group breakdown */}
         <Card>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
             <h3 style={{fontFamily:'var(--serif)',fontSize:16}}>Performance Breakdown</h3>
@@ -1079,7 +1106,7 @@ const ReportsPage=({user,clients,evaluations})=>{
   );
 };
 
-// ─── TEAM PAGE ────────────────────────────────────────────────────────────────
+// ─── TEAM PAGE (managers only) ────────────────────────────────────────────────
 const TeamPage=({user,clients,evaluations})=>{
   const evaluators=USERS.filter(u=>u.role==='evaluator');
   return(
@@ -1098,10 +1125,13 @@ const TeamPage=({user,clients,evaluations})=>{
             <Card key={ev.id}>
               <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
                 <div style={{width:40,height:40,borderRadius:10,background:'rgba(59,130,246,.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'var(--accent)'}}>{ev.name.charAt(0)}</div>
-                <div><div style={{fontWeight:600,fontSize:14}}>{ev.name}</div><Badge color="blue">evaluator</Badge></div>
+                <div>
+                  <div style={{fontWeight:600,fontSize:14}}>{ev.name}</div>
+                  <Badge color="blue">evaluator</Badge>
+                </div>
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div style={{display:'flex',justify:'space-between',alignItems:'center'}}>
                   <span style={{fontSize:12,color:'var(--muted)'}}>Assigned Stores</span>
                   <strong style={{fontSize:13}}>{evClients.length}</strong>
                 </div>
@@ -1149,7 +1179,7 @@ const TeamPage=({user,clients,evaluations})=>{
 
 // ─── IMPORT CLIENTS PAGE ──────────────────────────────────────────────────────
 const ImportPage=({user,clients,setClients})=>{
-  const [step,setStep]=useState(0);
+  const [step,setStep]=useState(0); // 0=upload, 1=map, 2=preview, 3=done
   const [csvRows,setCsvRows]=useState([]);
   const [csvHeaders,setCsvHeaders]=useState([]);
   const [mapping,setMapping]=useState({});
@@ -1172,6 +1202,7 @@ const ImportPage=({user,clients,setClients})=>{
   const parseCSV=(text)=>{
     const lines=text.split(/\r?\n/).filter(l=>l.trim());
     if(lines.length<2)return{headers:[],rows:[]};
+    // Handle quoted fields
     const parseRow=(line)=>{
       const result=[];let cur='';let inQ=false;
       for(let i=0;i<line.length;i++){
@@ -1219,7 +1250,10 @@ const ImportPage=({user,clients,setClients})=>{
     reader.onload=(e)=>{
       const{headers,rows}=parseCSV(e.target.result);
       if(!headers.length){alert('Could not parse file. Make sure it is a valid CSV.');return;}
-      setCsvHeaders(headers);setCsvRows(rows);setMapping(autoMap(headers));setStep(1);
+      setCsvHeaders(headers);
+      setCsvRows(rows);
+      setMapping(autoMap(headers));
+      setStep(1);
     };
     reader.readAsText(file);
   };
@@ -1232,7 +1266,8 @@ const ImportPage=({user,clients,setClients})=>{
       });
       return obj;
     });
-    setPreviewData(mapped);setStep(2);
+    setPreviewData(mapped);
+    setStep(2);
   };
 
   const doImport=()=>{
@@ -1247,12 +1282,15 @@ const ImportPage=({user,clients,setClients})=>{
       if(!obj.storeName){skipped++;return;}
       if(existingNames.has(obj.storeName.toLowerCase().trim())){skipped++;return;}
       existingNames.add(obj.storeName.toLowerCase().trim());
+      // normalize status
       if(obj.status){const s=obj.status.toLowerCase();obj.status=s.includes('active')&&!s.includes('in')?'active':s.includes('inactive')||s.includes('in')?'inactive':'active';}
       else{obj.status='active';}
-      newClients.push(obj);added++;
+      newClients.push(obj);
+      added++;
     });
     setClients(prev=>[...prev,...newClients]);
-    setResult({added,skipped,total:csvRows.length});setStep(3);
+    setResult({added,skipped,total:csvRows.length});
+    setStep(3);
   };
 
   const reset=()=>{setStep(0);setCsvRows([]);setCsvHeaders([]);setMapping({});setPreviewData([]);setResult(null);};
@@ -1263,6 +1301,8 @@ const ImportPage=({user,clients,setClients})=>{
         <h2 style={{fontFamily:'var(--serif)',fontSize:24,fontWeight:400}}>Import Clients from HubSpot</h2>
         <p style={{color:'var(--muted)',fontSize:13,marginTop:2}}>Upload a CSV export from HubSpot and map columns to the right fields</p>
       </div>
+
+      {/* Step indicator */}
       <div style={{display:'flex',gap:0,marginBottom:28}}>
         {['Upload File','Map Columns','Preview','Done'].map((s,i)=>(
           <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center'}}>
@@ -1274,6 +1314,7 @@ const ImportPage=({user,clients,setClients})=>{
         ))}
       </div>
 
+      {/* Step 0: Upload */}
       {step===0&&(
         <div className="slide-in">
           <Card style={{marginBottom:16}}>
@@ -1300,6 +1341,7 @@ const ImportPage=({user,clients,setClients})=>{
         </div>
       )}
 
+      {/* Step 1: Map columns */}
       {step===1&&(
         <div className="slide-in">
           <Card style={{marginBottom:16}}>
@@ -1338,6 +1380,7 @@ const ImportPage=({user,clients,setClients})=>{
         </div>
       )}
 
+      {/* Step 2: Preview */}
       {step===2&&(
         <div className="slide-in">
           <Card style={{marginBottom:16}}>
@@ -1387,6 +1430,7 @@ const ImportPage=({user,clients,setClients})=>{
         </div>
       )}
 
+      {/* Step 3: Done */}
       {step===3&&result&&(
         <div className="slide-in">
           <Card style={{textAlign:'center',padding:40,marginBottom:16}}>
@@ -1416,7 +1460,14 @@ const ImportPage=({user,clients,setClients})=>{
 const App=()=>{
   const [user,setUser]=useState(()=>DB.get('pqa_session',null));
   const [page,setPage]=useState('dashboard');
-  const [clients,setClients]=useState(()=>DB.get('pqa_clients',[]));
+  const [clients,setClients]=useState(()=>{
+    const saved=DB.get('pqa_clients',[]);
+    if(saved.length===0)return SEED_CLIENTS;
+    // Merge: add any seed clients not already in saved (by id)
+    const savedIds=new Set(saved.map(c=>c.id));
+    const newSeeds=SEED_CLIENTS.filter(c=>!savedIds.has(c.id));
+    return newSeeds.length>0?[...saved,...newSeeds]:saved;
+  });
   const [evaluations,setEvaluations]=useState(()=>DB.get('pqa_evals',[]));
   const [pendingClient,setPendingClient]=useState(null);
 
@@ -1424,6 +1475,7 @@ const App=()=>{
   useEffect(()=>{DB.set('pqa_evals',evaluations);},[evaluations]);
   useEffect(()=>{DB.set('pqa_session',user);},[user]);
 
+  // Overdue reminder check
   useEffect(()=>{
     if(!user)return;
     const myClients=user.role==='manager'?clients:clients.filter(c=>c.assignedTo===user.id);
@@ -1467,6 +1519,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
-```
-
-Copy everything above, paste it into GitHub replacing the empty editor, then click **Commit changes**. 🚀
